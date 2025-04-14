@@ -465,7 +465,7 @@ export const guideContent = `
         massa. Donec eleifend, libero at sagittis mollis, tellus est malesuada tellus, at luctus turpis elit sit amet quam. Vivamus pretium ornare est.
     </p>
     <footer>
-        Brian Hughes
+        MyMontyClient
     </footer>
 </blockquote>
 
