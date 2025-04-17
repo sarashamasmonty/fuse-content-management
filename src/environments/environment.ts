@@ -4,10 +4,11 @@
 
 export const environment = {
   production: false,
-  apiUrl:"http://localhost:8080/v1",
+  apiUrl:"https://api-dev.montylocal.net/contents",
   oauthApi: 'https://iam-dev.montylocal.net/realms/integration-dev/protocol/openid-connect/token',
-  clientId: 'cms',
-  baseUrl: 'http://localhost:8080/v1',
+  client_id: 'cms-service',
+  grant_type: 'password',
+  client_secret: 'pxOcCcfRBti1SCQUP2cxKhdAITJTDKTL'
 };
 
 /*

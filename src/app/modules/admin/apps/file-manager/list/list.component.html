@@ -1,0 +1,194 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+    <mat-drawer-container
+        class="flex-auto h-full bg-card dark:bg-transparent"
+        (backdropClick)="onBackdropClicked()"
+    >
+        <!-- Drawer -->
+        <mat-drawer
+            class="w-full sm:w-100 dark:bg-gray-900"
+            [mode]="drawerMode"
+            [opened]="false"
+            [position]="'end'"
+            [disableClose]="true"
+            #matDrawer
+        >
+            <router-outlet></router-outlet>
+        </mat-drawer>
+
+        <mat-drawer-content
+            class="flex flex-col bg-gray-100 dark:bg-transparent"
+        >
+            <!-- Main -->
+            <div class="flex flex-col flex-auto">
+                <!-- Header -->
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between p-6 sm:py-12 md:px-8 border-b bg-card dark:bg-transparent"
+                >
+                    <!-- Title -->
+                    <div>
+                        <div
+                            class="text-4xl font-extrabold tracking-tight leading-none"
+                        >
+                            File Manager
+                        </div>
+                        <div
+                            class="flex items-center mt-0.5 font-medium text-secondary"
+                        >
+                            <ng-container *ngIf="items?.path?.length === 0">
+                                {{ items?.folders?.length || 0 }} folders,
+                                {{ items?.files?.length || 0 }} files
+                            </ng-container>
+                            <!-- Breadcrumbs -->
+                            <ng-container *ngIf="items?.path?.length">
+                                <div class="flex items-center space-x-2">
+                                    <a
+                                        class="text-primary cursor-pointer"
+                                        [routerLink]="['/file-manager']"
+                                        >Home</a
+                                    >
+                                    <div>/</div>
+                                    <ng-container
+                                        *ngFor="
+                                            let path of items.path;
+                                            let last = last;
+                                            trackBy: trackByFn
+                                        "
+                                    >
+                                        <ng-container *ngIf="!last">
+                                            <a
+                                                class="text-primary cursor-pointer"
+                                                [routerLink]="[
+                                                    '/file-manager/folders/',
+                                                    path.id
+                                                ]"
+                                            >
+                                                {{ path.name }}
+                                            </a>
+                                        </ng-container>
+                                        <ng-container *ngIf="last">
+                                            <div>{{ path.name }}</div>
+                                        </ng-container>
+                                        <ng-container *ngIf="!last">
+                                            <div>/</div>
+                                        </ng-container>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <input
+                        type="file"
+                        hidden
+                        #fileInput
+                        (change)="handleFileInput($event)"
+                    />
+
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="fileInput.click()"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                        <span class="ml-2 mr-1">Upload file</span>
+                    </button>
+
+                    <div class="mt-4 sm:mt-0">
+                        <button
+                            mat-flat-button
+                            color="accent"
+                            (click)="addNewFolder()"
+                        >
+                            <mat-icon [svgIcon]="'heroicons_outline:folder-plus'"></mat-icon>
+                            <span class="ml-2">Add Folder</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Items list -->
+                <ng-container
+                    *ngIf="
+                        items?.folders?.length > 0 || items?.files?.length > 0;
+                        else noItems
+                    "
+                >
+                    <div class="p-6 md:p-8 space-y-8">
+                        <!-- Folders -->
+                        <ng-container *ngIf="items?.folders?.length > 0">
+                            <div>
+                                <div class="font-medium">Folders</div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                                    <ng-container *ngFor="let folder of items.folders; trackBy: trackByFn">
+                                        <div (click)="openFolder(folder)" class="flex flex-col p-4 shadow rounded-lg bg-card hover:shadow-lg transition-shadow cursor-pointer"
+                                             [routerLink]="['/file-manager/folders/', folder.id]">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <mat-icon class="icon-size-8 text-amber-400"
+                                                              [svgIcon]="'heroicons_solid:folder'"></mat-icon>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium truncate">{{ folder.name }}</p>
+                                                    <p class="text-xs text-secondary" *ngIf="folder.contents">
+                                                        {{ folder.contents }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- Files -->
+                        <ng-container *ngIf="items?.files?.length > 0">
+                            <div>
+                                <div class="font-medium">Files</div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                                    <ng-container *ngFor="let file of items.files; trackBy: trackByFn">
+                                        <div class="flex flex-col p-4 shadow rounded-lg bg-card hover:shadow-lg transition-shadow cursor-pointer"
+                                             [routerLink]="['./details/', file.id]">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <div class="relative">
+                                                        <mat-icon class="icon-size-8 text-hint"
+                                                                  [svgIcon]="getFileIcon(file.type)"></mat-icon>
+                                                        <div class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-xs font-semibold text-white"
+                                                             [ngClass]="getFileBadgeClass(file.type)">
+                                                            {{ file.type?.toUpperCase() }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-medium truncate">{{ file.name }}</p>
+                                                    <p class="text-xs text-secondary">{{ file.size }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 text-xs text-secondary">
+                                                <span>Uploaded: {{ file.createdAt | date:'shortDate' }}</span>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+
+                <!-- No items template -->
+                <ng-template #noItems>
+                    <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+                        <mat-icon
+                            class="icon-size-24"
+                            [svgIcon]="'heroicons_outline:folder-open'"
+                        ></mat-icon>
+                        <div
+                            class="mt-4 text-2xl font-semibold tracking-tight text-secondary"
+                        >
+                            There are no items!
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+        </mat-drawer-content>
+    </mat-drawer-container>
+</div>

@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
+import { HttpClient, HttpHeaders, HttpParams, HttpRequest } from '@angular/common/http';
+import { AuthInterface } from './auth.interface';
+import { SessionService } from './session.service';
+import { Router } from '@angular/router';
+import { environment } from 'environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private _authenticated = false;
 
-    private readonly dummyAccessToken = 'mock_access_token';
-    private readonly dummyRefreshToken = 'mock_refresh_token';
+    private userTokeContext?: AuthInterface;
+    private sessionService;
+
     private readonly tokenTTL = 3600;
 
     private readonly mockUsers: Record<string, User> = {
@@ -21,7 +27,10 @@ export class AuthService {
         }
     };
 
-    constructor(private _userService: UserService) { }
+    constructor(private _userService: UserService, private readonly router: Router, private readonly http: HttpClient,) {
+        this.sessionService = new SessionService()
+        this.userTokeContext = this.sessionService.session;
+    }
 
     set accessToken(token: string) {
         localStorage.setItem('access_token', token);
@@ -31,26 +40,51 @@ export class AuthService {
         return localStorage.getItem('access_token') ?? '';
     }
 
+    
     async signIn(credentials: { username: string; password: string }): Promise<boolean> {
-        const { username, password } = credentials;
+        const body = new HttpParams()
+            .set('grant_type', environment.grant_type)
+            .set('client_secret', environment.client_secret)
+            .set('client_id', environment.client_id)
+            .set('username', credentials.username)
+            .set('password', credentials.password);
 
-        if (this.mockUsers[username] && password === username) {
+        try {
+            const response: any = await this.http
+                .post(environment.oauthApi, body.toString(), {
+                    headers: new HttpHeaders({
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }),
+                })
+                .toPromise();
+
             const now = Date.now();
+            const { access_token, refresh_token, expires_in } = response;
 
-            localStorage.setItem('access_token', this.dummyAccessToken);
-            localStorage.setItem('refresh_token', this.dummyRefreshToken);
+            localStorage.setItem('access_token', access_token);
+            localStorage.setItem('refresh_token', refresh_token);
             localStorage.setItem('token_type', 'Bearer');
-            localStorage.setItem('expires_in', this.tokenTTL.toString());
+            localStorage.setItem('expires_in', expires_in.toString());
             localStorage.setItem('token_obtained_at', now.toString());
 
             this._authenticated = true;
-            this._userService.user = this.mockUsers[username];
+
+            // Optionally load user from backend or set a default
+            this._userService.user = {
+                id: 'cms-user',
+                name: credentials.username,
+                email: credentials.username + '@example.com',
+                avatar: '../../../assets/images/avatars/brian-hughes.jpg',
+                status: 'online',
+            };
 
             return true;
+        } catch (error) {
+            console.error('OAuth sign-in failed:', error);
+            return false;
         }
-
-        return false;
     }
+
 
     signInUsingToken(): Observable<boolean> {
         if (!this.accessToken || this.isAccessTokenExpired()) {
@@ -82,15 +116,52 @@ export class AuthService {
         return this.signInUsingToken();
     }
 
+
     refreshToken(): Observable<boolean> {
         const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken || refreshToken !== this.dummyRefreshToken) return of(false);
+
+        // Simulate validation — in real case, make HTTP call
+        if (!refreshToken) return of(false);
 
         const now = Date.now();
-        localStorage.setItem('access_token', this.dummyAccessToken);
+        const newAccessToken = `access_token_${now}`;
+
+        localStorage.setItem('access_token', newAccessToken);
         localStorage.setItem('token_obtained_at', now.toString());
 
         return of(true);
+    }
+
+
+
+    isAuthenticated(): boolean {
+        if (this.userTokeContext?.accessToken && this.userTokeContext?.expirationTime > new Date().getTime()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    appendTokkenToRequest(request: HttpRequest<any>): HttpRequest<any> {
+        const token = this.accessToken;
+    
+        if (token && !this.isAccessTokenExpired()) {
+            return request.clone({
+                setHeaders: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        }
+    
+        return request;
+    }
+    
+
+
+    logout() {
+        this.sessionService.clearSession();
+        this.router.navigate(['/login'])
     }
 
 }

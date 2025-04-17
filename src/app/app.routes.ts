@@ -9,6 +9,7 @@ export const appRoutes: Route[] = [
     { path: 'sign-in', component: AuthSignInComponent },
     { path: 'sign-out', component: AuthSignOutComponent },
     { path: 'signed-in-redirect', pathMatch: 'full', redirectTo: 'example' },
+
     {
         path: '',
         component: LayoutComponent,
@@ -17,8 +18,14 @@ export const appRoutes: Route[] = [
         children: [
             {
                 path: 'example',
-                loadChildren: () => import('app/modules/admin/example/example.routes').then(m => m.default)
+                loadChildren: () =>
+                    import('app/modules/admin/example/example.routes').then(m => m.default)
+            },
+            {
+                path: 'file-manager',
+                loadChildren: () =>
+                    import('app/modules/admin/apps/file-manager/file-manager.routes').then(m => m.default)
             }
         ]
-    }
+    },
 ];
