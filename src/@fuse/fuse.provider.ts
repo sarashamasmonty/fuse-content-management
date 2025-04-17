@@ -1,9 +1,9 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { APP_INITIALIZER, ENVIRONMENT_INITIALIZER, EnvironmentProviders, importProvidersFrom, inject, Provider } from '@angular/core';
 import { MATERIAL_SANITY_CHECKS } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { FUSE_MOCK_API_DEFAULT_DELAY, mockApiInterceptor } from '@fuse/lib/mock-api';
+import { FUSE_MOCK_API_DEFAULT_DELAY } from '@fuse/lib/mock-api';
 import { FuseConfig } from '@fuse/services/config';
 import { FUSE_CONFIG } from '@fuse/services/config/config.constants';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
@@ -12,6 +12,7 @@ import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FusePlatformService } from '@fuse/services/platform';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { FuseUtilsService } from '@fuse/services/utils';
+import { AuthInterceptor } from 'app/core/auth/auth.interceptor';
 
 export type FuseProviderConfig = {
     mockApi?: {
@@ -93,7 +94,8 @@ export const provideFuse = (config: FuseProviderConfig): Array<Provider | Enviro
     if ( config?.mockApi?.services )
     {
         providers.push(
-            provideHttpClient(withInterceptors([mockApiInterceptor])),
+            provideHttpClient(),
+            { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
             {
                 provide   : APP_INITIALIZER,
                 deps      : [...config.mockApi.services],

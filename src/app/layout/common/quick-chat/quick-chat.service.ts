@@ -1,83 +1,38 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Chat } from 'app/layout/common/quick-chat/quick-chat.types';
-import { BehaviorSubject, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { chats as mockChats } from 'app/mock-api/apps/chat/data'; // <- make sure this exists
+import { cloneDeep } from 'lodash-es';
 
-@Injectable({providedIn: 'root'})
-export class QuickChatService
-{
-    private _chat: BehaviorSubject<Chat> = new BehaviorSubject(null);
-    private _chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>(null);
+@Injectable({ providedIn: 'root' })
+export class QuickChatService {
+    private _chat: BehaviorSubject<Chat | null> = new BehaviorSubject<Chat | null>(null);
+    private _chats: BehaviorSubject<Chat[] | null> = new BehaviorSubject<Chat[] | null>(null);
 
-    /**
-     * Constructor
-     */
-    constructor(private _httpClient: HttpClient)
-    {
-    }
+    public readonly chat$: Observable<Chat | null> = this._chat.asObservable();
+    public readonly chats$: Observable<Chat[] | null> = this._chats.asObservable();
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Accessors
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Getter for chat
-     */
-    get chat$(): Observable<Chat>
-    {
-        return this._chat.asObservable();
+    constructor() {
+        this._loadChats(); // Load data locally
     }
 
     /**
-     * Getter for chat
+     * Load all chats from local mock data
      */
-    get chats$(): Observable<Chat[]>
-    {
-        return this._chats.asObservable();
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Get chats
-     */
-    getChats(): Observable<any>
-    {
-        return this._httpClient.get<Chat[]>('api/apps/chat/chats').pipe(
-            tap((response: Chat[]) =>
-            {
-                this._chats.next(response);
-            }),
-        );
+    private _loadChats(): void {
+        const clonedChats = cloneDeep(mockChats);
+        this._chats.next(clonedChats);
     }
 
     /**
-     * Get chat
-     *
-     * @param id
+     * Get chat by ID from memory
      */
-    getChatById(id: string): Observable<any>
-    {
-        return this._httpClient.get<Chat>('api/apps/chat/chat', {params: {id}}).pipe(
-            map((chat) =>
-            {
-                // Update the chat
-                this._chat.next(chat);
-
-                // Return the chat
-                return chat;
-            }),
-            switchMap((chat) =>
-            {
-                if ( !chat )
-                {
-                    return throwError('Could not found chat with id of ' + id + '!');
-                }
-
-                return of(chat);
-            }),
-        );
+    getChatById(id: string): Observable<Chat> {
+        const chat = this._chats.value?.find(c => c.id === id);
+        if (!chat) {
+            return throwError(() => new Error('Could not find chat with id of ' + id));
+        }
+        this._chat.next(chat);
+        return of(chat);
     }
 }

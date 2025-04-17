@@ -1,40 +1,18 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Navigation } from 'app/core/navigation/navigation.types';
-import { Observable, ReplaySubject, tap } from 'rxjs';
+import { Injectable } from '@angular/core';
+import {
+  compactNavigation,
+  defaultNavigation,
+  futuristicNavigation,
+  horizontalNavigation,
+} from 'app/mock-api/common/navigation/data';
+import { Navigation } from './navigation.types';
 
-@Injectable({providedIn: 'root'})
-export class NavigationService
-{
-    private _httpClient = inject(HttpClient);
-    private _navigation: ReplaySubject<Navigation> = new ReplaySubject<Navigation>(1);
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Accessors
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Getter for navigation
-     */
-    get navigation$(): Observable<Navigation>
-    {
-        return this._navigation.asObservable();
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Get all navigation data
-     */
-    get(): Observable<Navigation>
-    {
-        return this._httpClient.get<Navigation>('api/common/navigation').pipe(
-            tap((navigation) =>
-            {
-                this._navigation.next(navigation);
-            }),
-        );
-    }
+@Injectable({ providedIn: 'root' })
+export class NavigationService {
+  public readonly navigation: Navigation = {
+    compact: compactNavigation,
+    default: defaultNavigation,
+    futuristic: futuristicNavigation,
+    horizontal: horizontalNavigation,
+  };
 }

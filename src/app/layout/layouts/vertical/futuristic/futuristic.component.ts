@@ -70,12 +70,7 @@ export class FuturisticLayoutComponent implements OnInit, OnDestroy
     ngOnInit(): void
     {
         // Subscribe to navigation data
-        this._navigationService.navigation$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((navigation: Navigation) =>
-            {
-                this.navigation = navigation;
-            });
+this.navigation = this._navigationService.navigation;
 
         // Subscribe to the user service
         this._userService.user$

@@ -153,7 +153,7 @@ export class SearchComponent implements OnChanges, OnInit, OnDestroy
             )
             .subscribe((value) =>
             {
-                this._httpClient.post('api/common/search', {query: value})
+                this._httpClient.post('', {query: value})
                     .subscribe((resultSets: any) =>
                     {
                         // Store the result sets

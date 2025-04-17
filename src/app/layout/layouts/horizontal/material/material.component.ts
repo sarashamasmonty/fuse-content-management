@@ -65,12 +65,7 @@ export class MaterialLayoutComponent implements OnInit, OnDestroy
     ngOnInit(): void
     {
         // Subscribe to navigation data
-        this._navigationService.navigation$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((navigation: Navigation) =>
-            {
-                this.navigation = navigation;
-            });
+this.navigation = this._navigationService.navigation;
 
         // Subscribe to media changes
         this._fuseMediaWatcherService.onMediaChange$
