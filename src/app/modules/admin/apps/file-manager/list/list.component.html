@@ -34,19 +34,19 @@
                         <div
                             class="flex items-center mt-0.5 font-medium text-secondary"
                         >
-                            <ng-container *ngIf="items?.path?.length === 0">
-                                {{ items?.folders?.length || 0 }} folders,
-                                {{ items?.files?.length || 0 }} files
+                            <ng-container *ngIf="!items.path.length">
+                                {{ items.folders.length }} folders,
+                                {{ items.files.length }} files
                             </ng-container>
                             <!-- Breadcrumbs -->
-                            <ng-container *ngIf="items?.path?.length">
+                            <ng-container *ngIf="items.path.length">
                                 <div class="flex items-center space-x-2">
                                     <a
                                         class="text-primary cursor-pointer"
-                                        [routerLink]="['/file-manager']"
-                                        >Home</a
-                                    >
-                                    <div>/</div>
+                                        [routerLink]="['/apps/file-manager']"
+                                        >Home
+                                    </a>
+                                    <div class="">/</div>
                                     <ng-container
                                         *ngFor="
                                             let path of items.path;
@@ -58,18 +58,17 @@
                                             <a
                                                 class="text-primary cursor-pointer"
                                                 [routerLink]="[
-                                                    '/file-manager/folders/',
+                                                    '/apps/file-manager/folders/',
                                                     path.id
                                                 ]"
+                                                >{{ path.name }}</a
                                             >
-                                                {{ path.name }}
-                                            </a>
                                         </ng-container>
                                         <ng-container *ngIf="last">
                                             <div>{{ path.name }}</div>
                                         </ng-container>
                                         <ng-container *ngIf="!last">
-                                            <div>/</div>
+                                            <div class="">/</div>
                                         </ng-container>
                                     </ng-container>
                                 </div>
@@ -77,30 +76,13 @@
                         </div>
                     </div>
                     <!-- Actions -->
-                    <input
-                        type="file"
-                        hidden
-                        #fileInput
-                        (change)="handleFileInput($event)"
-                    />
-
-                    <button
-                        mat-flat-button
-                        color="primary"
-                        (click)="fileInput.click()"
-                    >
-                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                        <span class="ml-2 mr-1">Upload file</span>
-                    </button>
-
                     <div class="mt-4 sm:mt-0">
-                        <button
-                            mat-flat-button
-                            color="accent"
-                            (click)="addNewFolder()"
-                        >
-                            <mat-icon [svgIcon]="'heroicons_outline:folder-plus'"></mat-icon>
-                            <span class="ml-2">Add Folder</span>
+                        <!-- Upload button -->
+                        <button mat-flat-button [color]="'primary'">
+                            <mat-icon
+                                [svgIcon]="'heroicons_outline:plus'"
+                            ></mat-icon>
+                            <span class="ml-2 mr-1">Upload file</span>
                         </button>
                     </div>
                 </div>
@@ -108,31 +90,78 @@
                 <!-- Items list -->
                 <ng-container
                     *ngIf="
-                        items?.folders?.length > 0 || items?.files?.length > 0;
+                        items &&
+                            (items.folders.length > 0 ||
+                                items.files.length > 0);
                         else noItems
                     "
                 >
                     <div class="p-6 md:p-8 space-y-8">
                         <!-- Folders -->
-                        <ng-container *ngIf="items?.folders?.length > 0">
+                        <ng-container *ngIf="items.folders.length > 0">
                             <div>
                                 <div class="font-medium">Folders</div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                                    <ng-container *ngFor="let folder of items.folders; trackBy: trackByFn">
-                                        <div (click)="openFolder(folder)" class="flex flex-col p-4 shadow rounded-lg bg-card hover:shadow-lg transition-shadow cursor-pointer"
-                                             [routerLink]="['/file-manager/folders/', folder.id]">
-                                            <div class="flex items-center space-x-4">
-                                                <div class="flex-shrink-0">
-                                                    <mat-icon class="icon-size-8 text-amber-400"
-                                                              [svgIcon]="'heroicons_solid:folder'"></mat-icon>
+                                <div class="flex flex-wrap -m-2 mt-2">
+                                    <ng-container
+                                        *ngFor="
+                                            let folder of items.folders;
+                                            trackBy: trackByFn
+                                        "
+                                    >
+                                        <div
+                                            class="relative w-40 h-40 m-2 p-4 shadow rounded-2xl bg-card"
+                                        >
+                                            <a
+                                                class="absolute z-20 top-1.5 right-1.5 w-8 h-8 min-h-8"
+                                                mat-icon-button
+                                            >
+                                                <mat-icon
+                                                    class="icon-size-5"
+                                                    [svgIcon]="
+                                                        'heroicons_solid:information-circle'
+                                                    "
+                                                ></mat-icon>
+                                            </a>
+                                            <a
+                                                class="z-10 absolute inset-0 flex flex-col p-4 cursor-pointer"
+                                            >
+                                                <div class="aspect-[9/6]">
+                                                    <div
+                                                        class="flex items-center justify-center h-full"
+                                                    >
+                                                        <!-- Icon -->
+                                                        <mat-icon
+                                                            class="icon-size-14 text-hint opacity-50"
+                                                            [svgIcon]="
+                                                                'heroicons_solid:folder'
+                                                            "
+                                                        ></mat-icon>
+                                                    </div>
                                                 </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="text-sm font-medium truncate">{{ folder.name }}</p>
-                                                    <p class="text-xs text-secondary" *ngIf="folder.contents">
-                                                        {{ folder.contents }}
-                                                    </p>
+                                                <div
+                                                    class="flex flex-col flex-auto justify-center text-center text-sm font-medium"
+                                                >
+                                                    <div
+                                                        class="truncate"
+                                                        [matTooltip]="
+                                                            folder.name
+                                                        "
+                                                    >
+                                                        {{ folder.name }}
+                                                    </div>
+                                                    <ng-container
+                                                        *ngIf="folder.contents"
+                                                    >
+                                                        <div
+                                                            class="text-secondary truncate"
+                                                        >
+                                                            {{
+                                                                folder.contents
+                                                            }}
+                                                        </div>
+                                                    </ng-container>
                                                 </div>
-                                            </div>
+                                            </a>
                                         </div>
                                     </ng-container>
                                 </div>
@@ -140,33 +169,83 @@
                         </ng-container>
 
                         <!-- Files -->
-                        <ng-container *ngIf="items?.files?.length > 0">
+                        <ng-container *ngIf="items.files.length > 0">
                             <div>
                                 <div class="font-medium">Files</div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                                    <ng-container *ngFor="let file of items.files; trackBy: trackByFn">
-                                        <div class="flex flex-col p-4 shadow rounded-lg bg-card hover:shadow-lg transition-shadow cursor-pointer"
-                                             [routerLink]="['./details/', file.id]">
-                                            <div class="flex items-center space-x-4">
-                                                <div class="flex-shrink-0">
+                                <div class="flex flex-wrap -m-2 mt-2">
+                                    <ng-container
+                                        *ngFor="
+                                            let file of items.files;
+                                            trackBy: trackByFn
+                                        "
+                                    >
+                                        <a
+                                            class="flex flex-col w-40 h-40 m-2 p-4 shadow rounded-2xl cursor-pointer bg-card"
+                                            [routerLink]="[
+                                                './details/',
+                                                file.id
+                                            ]"
+                                        >
+                                            <div class="aspect-[9/6]">
+                                                <div
+                                                    class="flex items-center justify-center h-full"
+                                                >
+                                                    <!-- Icons -->
                                                     <div class="relative">
-                                                        <mat-icon class="icon-size-8 text-hint"
-                                                                  [svgIcon]="getFileIcon(file.type)"></mat-icon>
-                                                        <div class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-xs font-semibold text-white"
-                                                             [ngClass]="getFileBadgeClass(file.type)">
-                                                            {{ file.type?.toUpperCase() }}
+                                                        <mat-icon
+                                                            class="icon-size-14 text-hint opacity-50"
+                                                            [svgIcon]="
+                                                                'heroicons_solid:document'
+                                                            "
+                                                        ></mat-icon>
+                                                        <div
+                                                            class="absolute left-0 bottom-0 px-1.5 rounded text-sm font-semibold leading-5 text-white"
+                                                            [class.bg-red-600]="
+                                                                file.type ===
+                                                                'PDF'
+                                                            "
+                                                            [class.bg-blue-600]="
+                                                                file.type ===
+                                                                'DOC'
+                                                            "
+                                                            [class.bg-green-600]="
+                                                                file.type ===
+                                                                'XLS'
+                                                            "
+                                                            [class.bg-gray-600]="
+                                                                file.type ===
+                                                                'TXT'
+                                                            "
+                                                            [class.bg-amber-600]="
+                                                                file.type ===
+                                                                'JPG'
+                                                            "
+                                                        >
+                                                            {{ file.type }}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="text-sm font-medium truncate">{{ file.name }}</p>
-                                                    <p class="text-xs text-secondary">{{ file.size }}</p>
+                                            </div>
+                                            <div
+                                                class="flex flex-col flex-auto justify-center text-center text-sm font-medium"
+                                            >
+                                                <div
+                                                    class="truncate"
+                                                    [matTooltip]="file.name"
+                                                >
+                                                    {{ file.name }}
                                                 </div>
+                                                <ng-container
+                                                    *ngIf="file.contents"
+                                                >
+                                                    <div
+                                                        class="text-secondary truncate"
+                                                    >
+                                                        {{ file.contents }}
+                                                    </div>
+                                                </ng-container>
                                             </div>
-                                            <div class="mt-2 text-xs text-secondary">
-                                                <span>Uploaded: {{ file.createdAt | date:'shortDate' }}</span>
-                                            </div>
-                                        </div>
+                                        </a>
                                     </ng-container>
                                 </div>
                             </div>
@@ -176,7 +255,9 @@
 
                 <!-- No items template -->
                 <ng-template #noItems>
-                    <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+                    <div
+                        class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent"
+                    >
                         <mat-icon
                             class="icon-size-24"
                             [svgIcon]="'heroicons_outline:folder-open'"

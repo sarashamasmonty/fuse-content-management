@@ -13,6 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { AddFolderDialogComponent } from '../add-folder-dialog/add-folder-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FileManagerDetailsComponent } from "../details/details.component";
 
 @Component({
     selector: 'file-manager-list',
@@ -29,7 +30,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
-        DatePipe, MatFormFieldModule, ReactiveFormsModule, FormsModule
+        DatePipe, MatFormFieldModule, ReactiveFormsModule, FormsModule,
+        FileManagerDetailsComponent
     ],
 })
 export class FileManagerListComponent implements OnInit, OnDestroy {
@@ -52,38 +54,58 @@ export class FileManagerListComponent implements OnInit, OnDestroy {
         this._fileManagerService.getFolders();
         this._fileManagerService.getDocuments('/');
 
+        // Get the items
         this._fileManagerService.items$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((items: Items) => {
                 this.items = items;
-                this._changeDetectorRef.detectChanges();
+
+                // Mark for check
+                this._changeDetectorRef.markForCheck();
             });
 
+        // Get the item
         this._fileManagerService.item$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((item: Item) => {
                 this.selectedItem = item;
-                this._changeDetectorRef.detectChanges();
+
+                // Mark for check
+                this._changeDetectorRef.markForCheck();
             });
 
+        // Subscribe to media query change
         this._fuseMediaWatcherService.onMediaQueryChange$('(min-width: 1440px)')
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((state) => {
+                // Calculate the drawer mode
                 this.drawerMode = state.matches ? 'side' : 'over';
-                this._changeDetectorRef.detectChanges();
+
+                // Mark for check
+                this._changeDetectorRef.markForCheck();
             });
     }
 
     ngOnDestroy(): void {
+        // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 
     onBackdropClicked(): void {
+        // Go back to the list
         this._router.navigate(['./'], { relativeTo: this._activatedRoute });
-        this._changeDetectorRef.detectChanges();
+
+        // Mark for check
+        this._changeDetectorRef.markForCheck();
     }
 
+    /**
+     * Track by function for ngFor loops
+     *
+     * @param index
+     * @param item
+     */
     trackByFn(index: number, item: any): any {
         return item.id || index;
     }
@@ -121,7 +143,7 @@ export class FileManagerListComponent implements OnInit, OnDestroy {
                 name: file.name,
                 content: file,
             };
-    
+
             this._fileManagerService.uploadFile(document).subscribe({
                 complete: () => {
                     this._fileManagerService.getDocuments(document.parentPath);
@@ -130,7 +152,7 @@ export class FileManagerListComponent implements OnInit, OnDestroy {
             });
         }
     }
-    
+
 
     getFileIcon(fileType: string): string {
         switch ((fileType || '').toLowerCase()) {
@@ -161,9 +183,21 @@ export class FileManagerListComponent implements OnInit, OnDestroy {
     }
 
     openFolder(folder: Item): void {
-        this._router.navigate(['/file-manager/folders', folder.id]);
-        this._fileManagerService.getDocuments(folder.path);
-        this._fileManagerService.getItems(folder.path); 
+        this.selectedItem = folder;
+        this.matDrawer.open();
     }
-    
+
+    openFile(file: Item): void {
+        this.selectedItem = file;
+        this.matDrawer.open();
+    }
+
+    openItemInDrawer(item: Item): void {
+        this._router.navigate([{ outlets: { drawer: ['details', item.id] } }], {
+            relativeTo: this._activatedRoute,
+        });
+    }
+
+
+
 }

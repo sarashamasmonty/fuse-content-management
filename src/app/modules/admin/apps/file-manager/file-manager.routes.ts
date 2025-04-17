@@ -1,119 +1,151 @@
 import { inject } from '@angular/core';
-import {
-    ActivatedRouteSnapshot,
-    Router,
-    RouterStateSnapshot,
-    Routes
-} from '@angular/router';
-import { FileManagerComponent } from './file-manager.component';
-import { FileManagerListComponent } from './list/list.component';
-import { FileManagerDetailsComponent } from './details/details.component';
-import { FileManagerService } from './file-manager.service';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes } from '@angular/router';
+import { FileManagerDetailsComponent } from 'app/modules/admin/apps/file-manager/details/details.component';
+import { FileManagerComponent } from 'app/modules/admin/apps/file-manager/file-manager.component';
+import { FileManagerService } from 'app/modules/admin/apps/file-manager/file-manager.service';
+import { FileManagerListComponent } from 'app/modules/admin/apps/file-manager/list/list.component';
 import { catchError, throwError } from 'rxjs';
 
 /**
  * Folder resolver
+ *
+ * @param route
+ * @param state
  */
-const folderResolver = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+const folderResolver = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) =>
+{
     const fileManagerService = inject(FileManagerService);
     const router = inject(Router);
-    const folderId = route.paramMap.get('folderId') || '/assets';
 
-    return fileManagerService.getItems(folderId).pipe(
-        catchError((error) => {
+    return fileManagerService.getItems(route.paramMap.get('folderId')).pipe(
+        // Error here means the requested folder is not available
+        catchError((error) =>
+        {
+            // Log the error
             console.error(error);
+
+            // Get the parent url
             const parentUrl = state.url.split('/').slice(0, -1).join('/');
+
+            // Navigate to there
             router.navigateByUrl(parentUrl);
-            return throwError(() => error);
-        })
+
+            // Throw an error
+            return throwError(error);
+        }),
     );
 };
 
 /**
  * Item resolver
+ *
+ * @param route
+ * @param state
  */
-const itemResolver = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+const itemResolver = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) =>
+{
     const fileManagerService = inject(FileManagerService);
     const router = inject(Router);
-    const itemId = route.paramMap.get('id');
 
-    return fileManagerService.getItemById(itemId).pipe(
-        catchError((error) => {
+    return fileManagerService.getItemById(route.paramMap.get('id')).pipe(
+        // Error here means the requested item is not available
+        catchError((error) =>
+        {
+            // Log the error
             console.error(error);
+
+            // Get the parent url
             const parentUrl = state.url.split('/').slice(0, -1).join('/');
+
+            // Navigate to there
             router.navigateByUrl(parentUrl);
-            return throwError(() => error);
-        })
+
+            // Throw an error
+            return throwError(error);
+        }),
     );
 };
 
 /**
- * Can deactivate handler
+ * Can deactivate file manager details
+ *
+ * @param component
+ * @param currentRoute
+ * @param currentState
+ * @param nextState
  */
 const canDeactivateFileManagerDetails = (
     component: FileManagerDetailsComponent,
     currentRoute: ActivatedRouteSnapshot,
     currentState: RouterStateSnapshot,
-    nextState: RouterStateSnapshot
-) => {
+    nextState: RouterStateSnapshot) =>
+{
+    // Get the next route
     let nextRoute: ActivatedRouteSnapshot = nextState.root;
-    while (nextRoute.firstChild) {
+    while ( nextRoute.firstChild )
+    {
         nextRoute = nextRoute.firstChild;
     }
 
-    if (!nextState.url.includes('/file-manager')) {
+    // If the next state doesn't contain '/file-manager'
+    // it means we are navigating away from the
+    // file manager app
+    if ( !nextState.url.includes('/file-manager') )
+    {
+        // Let it navigate
         return true;
     }
 
-    if (nextState.url.includes('/details')) {
+    // If we are navigating to another item...
+    if ( nextState.url.includes('/details') )
+    {
+        // Just navigate
         return true;
     }
 
+    // Otherwise, close the drawer first, and then navigate
     return component.closeDrawer().then(() => true);
 };
 
-/**
- * Routes for file-manager (should be loaded under 'apps/file-manager')
- */
 export default [
     {
-        path: '',
+        path     : '',
         component: FileManagerComponent,
-        children: [
+        children : [
             {
-                path: 'folders/:folderId',
+                path     : 'folders/:folderId',
                 component: FileManagerListComponent,
-                resolve: {
-                    items: folderResolver
+                resolve  : {
+                    item: folderResolver,
                 },
-                children: [
+                children : [
                     {
-                        path: 'details/:id',
-                        component: FileManagerDetailsComponent,
-                        resolve: {
-                            item: itemResolver
+                        path         : 'details/:id',
+                        component    : FileManagerDetailsComponent,
+                        resolve      : {
+                            item: itemResolver,
                         },
-                        canDeactivate: [canDeactivateFileManagerDetails]
-                    }
-                ]
+                        canDeactivate: [canDeactivateFileManagerDetails],
+                    },
+                ],
             },
             {
-                path: '',
+                path     : '',
                 component: FileManagerListComponent,
-                resolve: {
-                    items: () => inject(FileManagerService).getItems('/assets')
+                resolve  : {
+                    items: () => inject(FileManagerService).item$,
                 },
-                children: [
+                children : [
                     {
-                        path: 'details/:id',
-                        component: FileManagerDetailsComponent,
-                        resolve: {
-                            item: itemResolver
+                        path         : 'details/:id',
+                        component    : FileManagerDetailsComponent,
+                        resolve      : {
+                            item: itemResolver,
                         },
-                        canDeactivate: [canDeactivateFileManagerDetails]
-                    }
-                ]
-            }
-        ]
-    }
+                        canDeactivate: [canDeactivateFileManagerDetails],
+                    },
+                ],
+            },
+        ],
+    },
 ] as Routes;

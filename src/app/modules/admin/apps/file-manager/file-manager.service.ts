@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, switchMap, take, throwError } from 'rxjs';
 import { Items, Item } from './file-manager.types';
 import { environment } from 'environments/environment';
 
@@ -63,11 +63,29 @@ export class FileManagerService {
         });
     }
 
-    getItemById(id: string | null): Observable<Item> {
-        return this.http.get<Item>(`${this.apiUrl}/v1/cms/items/${id}`, {
-            headers: this.getAuthHeaders()
-        });
+    getItemById(id: string): Observable<Item> {
+        return this._items.pipe(
+            take(1),
+            map((items) => {
+                // Find within the folders and files
+                const item = [...items.folders, ...items.files].find(value => value.id === id) || null;
+
+                // Update the item
+                this._item.next(item);
+
+                // Return the item
+                return item;
+            }),
+            switchMap((item) => {
+                if (!item) {
+                    return throwError('Could not found the item with id of ' + id + '!');
+                }
+
+                return of(item);
+            }),
+        );
     }
+
 
     uploadFile(document: any) {
         var formData: FormData = new FormData();
