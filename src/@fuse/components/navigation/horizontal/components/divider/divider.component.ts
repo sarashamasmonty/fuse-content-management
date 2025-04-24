@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FuseHorizontalNavigationComponent } from '@fuse/components/navigation/horizontal/horizontal.component';
-import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
+
 import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -25,7 +25,7 @@ export class FuseHorizontalNavigationDividerItemComponent implements OnInit, OnD
      */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _fuseNavigationService: FuseNavigationService,
+        
     )
     {
     }
@@ -39,8 +39,6 @@ export class FuseHorizontalNavigationDividerItemComponent implements OnInit, OnD
      */
     ngOnInit(): void
     {
-        // Get the parent navigation component
-        this._fuseHorizontalNavigationComponent = this._fuseNavigationService.getComponent(this.name);
 
         // Subscribe to onRefreshed on the navigation component
         this._fuseHorizontalNavigationComponent.onRefreshed.pipe(

@@ -1,7 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { fuseAnimations } from '@fuse/animations';
-import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
 import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { FuseUtilsService } from '@fuse/services/utils/utils.service';
 import { ReplaySubject, Subject } from 'rxjs';
@@ -18,7 +17,7 @@ import { FuseHorizontalNavigationSpacerItemComponent } from './components/spacer
     changeDetection: ChangeDetectionStrategy.OnPush,
     exportAs       : 'fuseHorizontalNavigation',
     standalone     : true,
-    imports        : [NgFor, NgIf, FuseHorizontalNavigationBasicItemComponent, FuseHorizontalNavigationBranchItemComponent, FuseHorizontalNavigationSpacerItemComponent],
+    imports        : [NgFor, NgIf, FuseHorizontalNavigationBranchItemComponent, FuseHorizontalNavigationSpacerItemComponent],
 })
 export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnDestroy
 {
@@ -33,7 +32,6 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
      */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _fuseNavigationService: FuseNavigationService,
         private _fuseUtilsService: FuseUtilsService,
     )
     {
@@ -70,7 +68,6 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
         }
 
         // Register the navigation component
-        this._fuseNavigationService.registerComponent(this.name, this);
     }
 
     /**
@@ -79,7 +76,6 @@ export class FuseHorizontalNavigationComponent implements OnChanges, OnInit, OnD
     ngOnDestroy(): void
     {
         // Deregister the navigation component from the registry
-        this._fuseNavigationService.deregisterComponent(this.name);
 
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);

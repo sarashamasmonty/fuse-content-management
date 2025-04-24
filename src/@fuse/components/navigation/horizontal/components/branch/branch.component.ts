@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FuseHorizontalNavigationBasicItemComponent } from '@fuse/components/navigation/horizontal/components/basic/basic.component';
 import { FuseHorizontalNavigationDividerItemComponent } from '@fuse/components/navigation/horizontal/components/divider/divider.component';
 import { FuseHorizontalNavigationComponent } from '@fuse/components/navigation/horizontal/horizontal.component';
-import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
+
 import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -37,7 +37,7 @@ export class FuseHorizontalNavigationBranchItemComponent implements OnInit, OnDe
      */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _fuseNavigationService: FuseNavigationService,
+        
     )
     {
     }
@@ -51,8 +51,6 @@ export class FuseHorizontalNavigationBranchItemComponent implements OnInit, OnDe
      */
     ngOnInit(): void
     {
-        // Get the parent navigation component
-        this._fuseHorizontalNavigationComponent = this._fuseNavigationService.getComponent(this.name);
 
         // Subscribe to onRefreshed on the navigation component
         this._fuseHorizontalNavigationComponent.onRefreshed.pipe(

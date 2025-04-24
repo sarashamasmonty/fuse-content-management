@@ -1,9 +1,9 @@
 import { Route } from '@angular/router';
 import { initialDataResolver } from 'app/app.resolvers';
-import { AuthGuard } from 'app/core/auth/guards/auth.guard';
-import { LayoutComponent } from 'app/layout/layout.component';
 import { AuthSignInComponent } from './modules/auth/sign-in/sign-in.component';
 import { AuthSignOutComponent } from './modules/auth/sign-out/sign-out.component';
+import { AuthGuardService } from './core/auth/guards/auth.guard';
+import { LayoutComponent } from './layout/layout.component';
 
 export const appRoutes: Route[] = [
     { path: 'sign-in', component: AuthSignInComponent },
@@ -14,7 +14,7 @@ export const appRoutes: Route[] = [
         path: '',
         component: LayoutComponent,
         resolve: { initialData: initialDataResolver },
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuardService],
         children: [
             {
                 path: 'example',

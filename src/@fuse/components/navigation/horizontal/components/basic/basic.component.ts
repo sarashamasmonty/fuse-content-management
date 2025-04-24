@@ -5,7 +5,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
 import { FuseHorizontalNavigationComponent } from '@fuse/components/navigation/horizontal/horizontal.component';
-import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
 import { FuseNavigationItem } from '@fuse/components/navigation/navigation.types';
 import { FuseUtilsService } from '@fuse/services/utils/utils.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -31,7 +30,6 @@ export class FuseHorizontalNavigationBasicItemComponent implements OnInit, OnDes
      */
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
-        private _fuseNavigationService: FuseNavigationService,
         private _fuseUtilsService: FuseUtilsService,
     )
     {
@@ -59,8 +57,6 @@ export class FuseHorizontalNavigationBasicItemComponent implements OnInit, OnDes
                 ? this._fuseUtilsService.exactMatchOptions
                 : this._fuseUtilsService.subsetMatchOptions;
 
-        // Get the parent navigation component
-        this._fuseHorizontalNavigationComponent = this._fuseNavigationService.getComponent(this.name);
 
         // Mark for check
         this._changeDetectorRef.markForCheck();

@@ -10,19 +10,45 @@ import { firstValueFrom } from 'rxjs';
 import { appRoutes } from 'app/app.routes';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
-import { AuthInterceptor } from './core/auth/auth.interceptor';
 import { provideAuth } from './core/auth/auth.provider';
+import { OAuthSelfService } from './core/auth/auth.service';
+import { AuthGuardService } from './core/auth/guards/auth.guard';
+import { SessionService } from './core/auth/session.service';
+import { LocalStorageService } from './core/services/local-storage.service';
+import { SessionStorageService } from './core/services/session-storage.service';
+import { DateTimeProvider, OAuthLogger, OAuthService, UrlHelperService } from 'angular-oauth2-oidc';
+import { FUSE_CONFIG } from '@fuse/services/config/config.constants';
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        AuthGuardService,
+        OAuthService,
+        OAuthSelfService,
+        UrlHelperService,
+        SessionService,
+        LocalStorageService,
+        SessionStorageService,
+        {
+            provide: OAuthLogger,
+            useValue: {
+                debug: (...args: any[]) => { },
+                info: (...args: any[]) => { },
+                warn: (...args: any[]) => { },
+                error: (...args: any[]) => { },
+            }
+        },
+        {
+            provide: DateTimeProvider,
+            useValue: {
+                now: () => new Date()
+            }
+        },
         provideAnimations(),
         provideHttpClient(),
         provideRouter(appRoutes,
             withPreloading(PreloadAllModules),
             withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
         ),
-
-        // Material Date Adapter
         {
             provide: DateAdapter,
             useClass: LuxonDateAdapter,
@@ -41,8 +67,6 @@ export const appConfig: ApplicationConfig = {
                 },
             },
         },
-
-        // Transloco Config
         provideTransloco({
             config: {
                 availableLangs: [
@@ -63,7 +87,6 @@ export const appConfig: ApplicationConfig = {
             loader: TranslocoHttpLoader,
         }),
         {
-            // Preload the default language before the app starts to prevent empty/jumping content
             provide: APP_INITIALIZER,
             useFactory: () => {
                 const translocoService = inject(TranslocoService);
@@ -74,10 +97,22 @@ export const appConfig: ApplicationConfig = {
             },
             multi: true,
         },
-
-        // Fuse
         provideAuth(),
         provideIcons(),
+        {
+            provide: FUSE_CONFIG,
+            useValue: {
+                layout: 'classy',
+                scheme: 'light',
+                theme: 'theme-default',
+                screens: {
+                    sm: '600px',
+                    md: '960px',
+                    lg: '1280px',
+                    xl: '1440px'
+                }
+            }
+        },
         provideFuse({
             fuse: {
                 layout: 'classy',

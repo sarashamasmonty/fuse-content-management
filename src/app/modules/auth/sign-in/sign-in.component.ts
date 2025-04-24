@@ -10,7 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
-import { AuthService } from 'app/core/auth/auth.service';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { OAuthSelfService } from 'app/core/auth/auth.service';
 
 @Component({
     selector: 'auth-sign-in',
@@ -42,9 +43,10 @@ export class AuthSignInComponent implements OnInit {
 
     constructor(
         private _activatedRoute: ActivatedRoute,
-        private _authService: AuthService,
+        private _authService: OAuthSelfService,
         private _formBuilder: UntypedFormBuilder,
         private _router: Router,
+        private authService: OAuthService
     ) { }
 
     ngOnInit(): void {
@@ -54,6 +56,7 @@ export class AuthSignInComponent implements OnInit {
             rememberMe: [''],
         });
     }
+
 
     async signIn(): Promise<void> {
         if (this.signInForm.invalid) {
@@ -70,7 +73,8 @@ export class AuthSignInComponent implements OnInit {
             const success = await this._authService.signIn({ username, password });
 
             if (success) {
-                const redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
+                const redirectURL =
+                    this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
                 await this._router.navigateByUrl(redirectURL);
             } else {
                 this.showError('Invalid username or password');
@@ -83,6 +87,7 @@ export class AuthSignInComponent implements OnInit {
             this.isLoading = false;
         }
     }
+
 
     private showError(message: string): void {
         this.alert = { type: 'error', message };

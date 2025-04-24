@@ -31,7 +31,7 @@ import { FileManagerDetailsComponent } from "../details/details.component";
         MatIconModule,
         MatTooltipModule,
         DatePipe, MatFormFieldModule, ReactiveFormsModule, FormsModule,
-        FileManagerDetailsComponent
+        
     ],
 })
 export class FileManagerListComponent implements OnInit, OnDestroy {
@@ -157,28 +157,30 @@ export class FileManagerListComponent implements OnInit, OnDestroy {
     getFileIcon(fileType: string): string {
         switch ((fileType || '').toLowerCase()) {
             case 'pdf':
+                return 'heroicons_solid:document-text';
             case 'doc':
             case 'docx':
-            case 'xls':
-            case 'xlsx':
-                return 'heroicons_solid:document-text';
+                return 'heroicons_solid:document';
             case 'jpg':
             case 'jpeg':
             case 'png':
             case 'gif':
-                return 'heroicons_solid:photograph';
+                return 'heroicons_solid:photograph'; // Assuming you have image previews for these
             default:
-                return 'heroicons_solid:document';
+                return 'heroicons_solid:document'; // Default file icon
         }
     }
-
+    
     getFileBadgeClass(fileType: string): string {
         switch ((fileType || '').toLowerCase()) {
-            case 'pdf': return 'bg-red-500';
-            case 'doc': case 'docx': return 'bg-blue-500';
-            case 'xls': case 'xlsx': return 'bg-green-500';
-            case 'jpg': case 'jpeg': case 'png': case 'gif': return 'bg-amber-500';
-            default: return 'bg-gray-500';
+            case 'pdf': return 'bg-red-500';  // Red for PDF files
+            case 'doc':
+            case 'docx': return 'bg-blue-500'; // Blue for Word files
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif': return 'bg-amber-500'; // Amber for image files
+            default: return 'bg-gray-500';  // Gray for other file types
         }
     }
 

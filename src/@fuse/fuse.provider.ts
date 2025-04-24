@@ -12,7 +12,7 @@ import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FusePlatformService } from '@fuse/services/platform';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { FuseUtilsService } from '@fuse/services/utils';
-import { AuthInterceptor } from 'app/core/auth/auth.interceptor';
+import { ApiInterceptor } from 'app/core/auth/inteceptors/auth.interceptor';
 
 export type FuseProviderConfig = {
     mockApi?: {
@@ -95,7 +95,7 @@ export const provideFuse = (config: FuseProviderConfig): Array<Provider | Enviro
     {
         providers.push(
             provideHttpClient(),
-            { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+            { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true },
             {
                 provide   : APP_INITIALIZER,
                 deps      : [...config.mockApi.services],
