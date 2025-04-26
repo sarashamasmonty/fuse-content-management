@@ -14,7 +14,7 @@ export const appRoutes: Route[] = [
         path: '',
         component: LayoutComponent,
         resolve: { initialData: initialDataResolver },
-        canActivate: [AuthGuardService],
+        // canActivate: [AuthGuardService],
         children: [
             {
                 path: 'example',
@@ -25,7 +25,17 @@ export const appRoutes: Route[] = [
                 path: 'file-manager',
                 loadChildren: () =>
                     import('app/modules/admin/apps/file-manager/file-manager.routes').then(m => m.default)
-            }
+            },
+            {
+                path: 'file-manager-new',
+                loadChildren: () =>
+                    import('app/new/new.routes').then(m => m.default)
+            },
+            {
+                path: 'configurations',
+                loadChildren: () =>
+                    import('app/modules/admin/apps/configurations/configurations.routes').then(m => m.default)
+            },
         ]
     },
 ];

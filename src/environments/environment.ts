@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiUrl:"https://api-dev.montylocal.net/contents",
+  apiUrlConfig:"https://api-dev.montylocal.net/configurations",
   oauthApi: 'https://iam-dev.montylocal.net/realms/integration-dev/protocol/openid-connect/token',
   client_id: 'cms-service',
   grant_type: 'password',

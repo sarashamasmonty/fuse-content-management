@@ -52,9 +52,8 @@ export type FuseVerticalNavigationAppearance =
     | 'dense'
     | 'thin';
 
-export type FuseVerticalNavigationMode =
-    | 'over'
-    | 'side';
+    export type FuseVerticalNavigationMode = 'side' | 'over' | 'compact';
+
 
 export type FuseVerticalNavigationPosition =
     | 'left'

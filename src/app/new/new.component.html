@@ -1,0 +1,81 @@
+<!-- <div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+    <div class="flex flex-col flex-auto p-6 md:p-8">
+        <app-sidebar></app-sidebar>
+    </div>
+    <div class="mt-8 aspect-[9/6]">
+        <app-header></app-header>
+        <main>
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div> -->
+
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+    <mat-drawer-container class="flex-auto h-full bg-card dark:bg-transparent">
+  
+      <!-- Drawer (Sidebar Drawer) -->
+      <mat-drawer
+        class="w-full sm:w-[25rem] dark:bg-gray-900"
+        [mode]="drawerMode"
+        [opened]="false"
+        [position]="'end'"
+        [disableClose]="true"
+        #matDrawer
+      >
+        <router-outlet></router-outlet>
+      </mat-drawer>
+  
+      <!-- Main Drawer Content -->
+      <mat-drawer-content class="flex flex-col bg-gray-100 dark:bg-transparent">
+  
+        <div class="flex flex-col flex-auto overflow-hidden">
+  
+          <!-- Title & Action Bar Section -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between p-6 sm:py-10 md:px-8 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
+            <!-- Page Title -->
+            <div>
+              <h1 class="text-3xl font-extrabold tracking-tight leading-tight">
+                File Manager
+              </h1>
+  
+              <!-- Optional breadcrumb or info (can be replaced with <app-breadcrumb>) -->
+              <div class="flex items-center mt-2 font-medium text-secondary text-sm">
+                <!-- You can dynamically bind file/folder count here -->
+                <!-- {{ items.folders.length }} folders, {{ items.files.length }} files -->
+              </div>
+            </div>
+  
+            <!-- Action buttons like Upload, New Folder -->
+            <div class="mt-4 sm:mt-0">
+                <app-action-bar
+                (createFolder)="onCreateFolder()"
+                (uploadFile)="onUploadFile()"
+                (refresh)="onRefresh()"
+              ></app-action-bar>
+              
+            </div>
+          </div>
+  
+          <!-- Header: breadcrumb, search, filters -->
+          <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <app-header></app-header>
+          </div>
+  
+          <!-- Main Body: Sidebar + Dynamic Content -->
+          <div class="flex flex-1 flex-col md:flex-row overflow-hidden md:p-4 gap-4">
+            <!-- Sidebar Navigation -->
+            <aside class="w-full md:w-64 shrink-0">
+              <app-sidebar></app-sidebar>
+            </aside>
+  
+            <!-- File Display Area (router outlet) -->
+            <main class="flex-1 overflow-auto">
+              <router-outlet></router-outlet>
+            </main>
+          </div>
+  
+        </div>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+  

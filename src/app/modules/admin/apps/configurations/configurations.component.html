@@ -1,0 +1,35 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+    <mat-drawer-container class="flex-auto h-full bg-card dark:bg-transparent">
+        <mat-drawer
+            class="w-full sm:w-100 dark:bg-gray-900"
+            [opened]="false"
+            [position]="'end'"
+            [disableClose]="true"
+            #matDrawer
+        >
+            <router-outlet></router-outlet>
+        </mat-drawer>
+
+        <mat-drawer-content
+            class="flex flex-col bg-gray-100 dark:bg-transparent"
+        >
+            <div class="flex flex-col flex-auto">
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between p-6 sm:py-12 md:px-8 border-b bg-card dark:bg-transparent"
+                >
+                    <div>
+                        <div
+                            class="text-4xl font-extrabold tracking-tight leading-none"
+                        >
+                            Configurations
+                        </div>
+                        <div
+                            class="flex items-center mt-0.5 font-medium text-secondary"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+            
+        </mat-drawer-content>
+    </mat-drawer-container>
+</div>

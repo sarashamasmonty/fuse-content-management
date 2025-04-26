@@ -10,6 +10,22 @@ const fileManagerItem: FuseNavigationItem = {
   link: '/file-manager'
 };
 
+const fileManagerItemNew: FuseNavigationItem = {
+  id: 'apps.file-manager',
+  title: 'File Manager New',
+  type: 'basic',
+  icon: 'heroicons_outline:cloud',
+  link: '/file-manager-new'
+};
+
+const configurations: FuseNavigationItem = {
+  id: 'apps.configurations',
+  title: 'Configurations',
+  type: 'basic',
+  icon: 'heroicons_outline:cloud',
+  link: '/configurations'
+};
+
 export const defaultNavigation: FuseNavigationItem[] = [
   {
     id: 'example',
@@ -24,8 +40,8 @@ export const defaultNavigation: FuseNavigationItem[] = [
     subtitle: 'Custom made application designs',
     type: 'group',
     icon: 'heroicons_outline:home',
-    children: [fileManagerItem]
-  }
+    children: [fileManagerItem, fileManagerItemNew, configurations]
+  },
 ];
 
 @Injectable({ providedIn: 'root' })
